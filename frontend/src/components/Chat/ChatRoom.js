@@ -227,7 +227,7 @@ const ChatRoom = ({ attendeeId, attendeeName, eventId, adminId, currentUserId })
           const isAI = msg.sender === 'ai_host';
           return (
             <MessageBubble key={idx} isSent={isSent} isAI={isAI}>
-              {!isSent && <span className="sender-name">{isAI ? 'Virtual Host' : 'Staff'}</span>}
+              {!isSent && <span className="sender-name">{isAI ? 'Virtual Host' : (currentUserId === adminId ? (attendeeName || 'Attendee') : 'Staff')}</span>}
               {msg.content}
               <span className="time">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
             </MessageBubble>
