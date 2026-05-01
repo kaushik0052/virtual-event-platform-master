@@ -155,7 +155,7 @@ const ChatRoom = ({ attendeeId, eventId, adminId, currentUserId }) => {
     });
 
     socketRef.current.emit('join_room', { attendeeId, eventId });
-    socketRef.current.emit('fetch_history', { attendeeId, eventId });
+    socketRef.current.emit('fetch_history', { attendeeId, eventId, adminId });
 
     socketRef.current.on('history', (history) => setMessages(history));
     socketRef.current.on('message', (msg) => {

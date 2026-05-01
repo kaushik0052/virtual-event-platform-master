@@ -75,10 +75,17 @@ io.on('connection', (socket) => {
     console.log(`Socket ${socket.id} joined ${roomId}`);
   });
 
-  // Fetch full history
-  socket.on('fetch_history', async ({ attendeeId, eventId }) => {
+  socket.on('fetch_history', async ({ attendeeId, eventId, adminId }) => {
     try {
-      const messages = await Message.find({ eventId, $or: [{ sender: attendeeId }, { receiver: attendeeId }] }).sort({ timestamp: 1 });
+      const messages = await Message.find({ 
+        eventId, 
+        $or: [
+          { sender: attendeeId, receiver: adminId },
+          { sender: adminId, receiver: attendeeId },
+          { sender: attendeeId, receiver: 'ai_host' },
+          { sender: 'ai_host', receiver: attendeeId }
+        ]
+      }).sort({ timestamp: 1 });
       socket.emit('history', messages);
     } catch (error) {
       console.error('History Error:', error);
