@@ -35,7 +35,7 @@ const getEventById = async (req, res) => {
     if (!event) return res.status(404).json({ message: 'Event not found' });
 
     const user = await User.findById(req.user.userId);
-    const isPurchased = user.purchasedEvents.includes(event._id);
+    const isPurchased = user.purchasedEvents.some(id => id.toString() === event._id.toString());
     const isAdmin = user.role === 'admin';
 
     if (!isPurchased && !isAdmin) {

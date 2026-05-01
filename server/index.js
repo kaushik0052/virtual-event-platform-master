@@ -90,6 +90,7 @@ io.on('connection', (socket) => {
     const schema = Joi.object({
       receiverId: Joi.string().required(),
       eventId: Joi.string().required(),
+      attendeeId: Joi.string().required(),
       content: Joi.string().max(1000).required()
     });
 
@@ -98,11 +99,11 @@ io.on('connection', (socket) => {
       return socket.emit('chat-error', { message: error.details[0].message });
     }
 
-    const { receiverId, eventId, content } = value;
+    const { receiverId, eventId, attendeeId, content } = value;
 
     try {
-      const attendeeId = socket.user.role === 'admin' ? receiverId : socket.user.userId;
-      const roomId = `room_${attendeeId}_${eventId}`;
+      const roomAttendee = attendeeId;
+      const roomId = `room_${roomAttendee}_${eventId}`;
 
       const newMessage = new Message({
         sender: socket.user.userId,
@@ -129,6 +130,8 @@ io.on('connection', (socket) => {
         const history = await Message.find({ 
           eventId, 
           $or: [
+            { sender: roomAttendee, receiver: 'ai_host' },
+            { sender: 'ai_host', receiver: roomAttendee },
             { sender: socket.user.userId, receiver: 'ai_host' },
             { sender: 'ai_host', receiver: socket.user.userId }
           ]
@@ -141,7 +144,7 @@ io.on('connection', (socket) => {
         
         const aiMessage = new Message({
           sender: 'ai_host', 
-          receiver: socket.user.userId,
+          receiver: roomAttendee,
           eventId,
           content: aiResponse
         });

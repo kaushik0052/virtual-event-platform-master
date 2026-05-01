@@ -196,6 +196,7 @@ const ChatRoom = ({ attendeeId, eventId, adminId, currentUserId }) => {
     socketRef.current.emit('send_message', {
       receiverId,
       eventId,
+      attendeeId,
       content: text
     });
     
