@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../services/api';
 import styled from 'styled-components';
 import { io } from 'socket.io-client';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const DashboardContainer = styled.div`
   max-width: 1200px;
@@ -148,9 +150,12 @@ const AdminDashboard = () => {
       query: { token }
     });
 
-    const refreshData = () => {
+    const refreshData = (data) => {
       console.log('Refreshing analytics due to event/purchase update...');
       fetchAnalytics();
+      if (data && data.revenue !== undefined) {
+        toast.success(`New Ticket Sold! Revenue +$${data.revenue - (data.revenue - (data.revenue / data.ticketsSold))}`);
+      }
     };
 
     socket.on('ticket_purchased', refreshData);
@@ -162,32 +167,37 @@ const AdminDashboard = () => {
 
   if (loading) return <div>Loading Analytics...</div>;
 
+  const currentDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const maxAttendance = Math.max(...(data?.monthlyAttendance?.map(m => m.value) || [10]));
+  const yAxisMax = maxAttendance > 0 ? maxAttendance * 1.2 : 10; // add 20% padding
+
   return (
     <DashboardContainer>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Header>
         <h1>Analytics</h1>
       </Header>
 
       <StatsGrid>
         <AnalyticsCard gradient="linear-gradient(135deg, #8e44ad, #9b59b6)">
-          <span className="date">Dec 5, 2024</span>
+          <span className="date">{currentDate}</span>
           <span className="label">Total Revenue Generated</span>
           <span className="value">${data?.totalRevenue?.toLocaleString()}.0</span>
-          <span className="subtext">Sales</span>
+          <span className="subtext">Lifetime Sales</span>
         </AnalyticsCard>
 
         <AnalyticsCard gradient="linear-gradient(135deg, #16a085, #1abc9c)">
-          <span className="date">Dec 5, 2024</span>
+          <span className="date">{currentDate}</span>
           <span className="label">Average Attendance Rate</span>
           <span className="value">{data?.averageAttendance}%</span>
-          <span className="subtext">Average</span>
+          <span className="subtext">Platform Average</span>
         </AnalyticsCard>
 
         <AnalyticsCard gradient="linear-gradient(135deg, #2980b9, #3498db)">
-          <span className="date">Dec 5, 2024</span>
+          <span className="date">{currentDate}</span>
           <span className="label">Total Events Active</span>
-          <span className="value">{data?.totalEvents}+</span>
-          <span className="subtext">Events</span>
+          <span className="value">{data?.totalEvents}</span>
+          <span className="subtext">Live & Upcoming Events</span>
         </AnalyticsCard>
       </StatsGrid>
 
@@ -200,7 +210,7 @@ const AdminDashboard = () => {
             {data?.monthlyAttendance?.map((item, id) => (
               <BarWrapper key={id}>
                 <div style={{ fontSize: '12px', color: '#666' }}>{item.value}</div>
-                <Bar height={(item.value / 500) * 100} highlight={item.highlight} />
+                <Bar height={(item.value / yAxisMax) * 100} highlight={item.highlight} />
                 <div style={{ fontSize: '12px', fontWeight: '600' }}>{item.name}</div>
               </BarWrapper>
             ))}
