@@ -130,7 +130,7 @@ const ChatInputArea = styled.div`
   }
 `;
 
-const ChatRoom = ({ attendeeId, eventId, adminId, currentUserId }) => {
+const ChatRoom = ({ attendeeId, attendeeName, eventId, adminId, currentUserId }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [hostAction, setHostAction] = useState('idle');
@@ -217,7 +217,7 @@ const ChatRoom = ({ attendeeId, eventId, adminId, currentUserId }) => {
         </div>
       </AvatarSection>
       <ChatHeader>
-        <span>Event Chat</span>
+        <span>{attendeeName ? `Chat with ${attendeeName}` : 'Event Chat'}</span>
         <span style={{ fontSize: '12px', opacity: 0.8 }}>● Live Interaction</span>
       </ChatHeader>
       

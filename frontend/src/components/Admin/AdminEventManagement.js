@@ -324,6 +324,7 @@ const AdminEventManagement = () => {
           <ModalContent onClick={e => e.stopPropagation()} style={{ padding: 0, maxWidth: '500px' }}>
             <ChatRoom 
               attendeeId={activeChat.attendeeId}
+              attendeeName={activeChat.username}
               eventId={selectedEvent._id}
               adminId={user.userId}
               currentUserId={user.userId}
